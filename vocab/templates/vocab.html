@@ -80,36 +80,75 @@
 <br />
 <div class="row">
   <div class="col-xs-6 text-center">
-  <form id="entry" method="POST" action="/_check">
+  <form id="entry">
     <label for="attempt">Word:</label>
     <input id="attempt" name="attempt" type="text" width="15"
       autocomplete="off"  autofocus />
-    <input type="submit" name="try" />
   </form>
 </div></div>
 
-<br />
+<p id="message"> </p>  <!-- JavaScript will insert text here -->
+<h3>Words Found so far</h3>
+<br>
+<p id="results"> </p>
+<script>
 
-{% if session.matches|length is not equalto 0  %}
-<h2>You found </h2>
-<p id="results">
-  {% for match in session.matches %}
-  {{ match }} 
-  {% endfor %}
-</p>
-{% endif %}
+// Suppress normal form submission
+$("#entry").submit( function(event) {
+   event.preventDefault();
+  });
+
+// On each keystroke, ask server whether the current
+// word is long enough.
+// We use 'keyup' because the form value
+// is updated before that event is generated.
+// keypress is triggered before the input field has been
+// updated.  Be aware that we'll see non-character keys like
+// shift and control, so make sure whatever you do with the
+// event does not depend on it being a letter.
+
+$("#attempt").keyup(function(event) {
+   var txt = $("#attempt").val();  // Current content of the input field
+   var keycode = event.which;      // The key that just went up
+   var letter = String.fromCharCode(keycode);
+   var match_list = [];
 
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <!-- Mismatch, already found, etc. "flashed" from Python -->
-    {% for message in messages %}
-      <p class="message">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+   // That letter might not be a letter ... it could be another key
+   // ignoring the shift key we get only the upper case letters.
 
+   if (! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
 
+   $.getJSON( "/_check", { text: txt },
+              function(data) {
+                valid_result = data.result.valid_word
+                invalid_result = data.result.invalid_letters
+                dupli_result = data.result.duplicate_words
+                enough_result = data.enough.enough_words
+
+                if (valid_result) {
+                  $("#message").html("Valid Word!");
+                  $("#attempt").val("");
+                  $("#results").append(txt + ", ");
+                } else if (invalid_result) {
+                  $("#message").html(txt + " contains invalid letters!");
+                  $("#attempt").val("");
+                } else if (dupli_result) {
+                  $("#message").html("You already found " + txt + "!");
+                  $("#attempt").val("");
+                } else {
+                  $("#message").html(txt + " Is not a valid word.");
+                }
+
+                if (enough_result) {
+                  $("#message").html("You Found Enough Words!");
+                  console.log("we are right before changing window location")
+                  window.location.assign("/success");
+                }
+               }
+           );
+   });
+</script>
 
  </div> <!-- container -->
 </body> </html>

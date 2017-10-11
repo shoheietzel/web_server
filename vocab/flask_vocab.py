@@ -1,6 +1,6 @@
 """
 Flask web site with vocabulary matching game
-(identify vocabulary words that can be made 
+(identify vocabulary words that can be made
 from a scrambled string)
 """
 
@@ -74,48 +74,32 @@ def success():
 #######################
 
 
-@app.route("/_check", methods=["POST"])
+@app.route("/_check")
 def check():
     """
-    User has submitted the form with a word ('attempt')
-    that should be formed from the jumble and on the
-    vocabulary list.  We respond depending on whether
-    the word is on the vocab list (therefore correctly spelled),
-    made only from the jumble letters, and not a word they
-    already found.
     """
     app.logger.debug("Entering check")
 
-    # The data we need, from form and from cookie
-    text = flask.request.form["attempt"]
+    flask.g.vocab = WORDS.as_list()
+    text = flask.request.args.get("text", type=str)
+    matches = flask.session.get("matches", [])
     jumble = flask.session["jumble"]
-    matches = flask.session.get("matches", [])  # Default to empty list
-
-    # Is it good?
     in_jumble = LetterBag(jumble).contains(text)
     matched = WORDS.has(text)
 
-    # Respond appropriately
+    rslt = {"valid_word": matched and in_jumble and not (
+        text in matches), "duplicate_words": text in matches, "invalid_letters": text in flask.g.vocab and not in_jumble}
+
     if matched and in_jumble and not (text in matches):
-        # Cool, they found a new word
+        app.logger.debug("we here")
         matches.append(text)
         flask.session["matches"] = matches
-    elif text in matches:
-        flask.flash("You already found {}".format(text))
-    elif not matched:
-        flask.flash("{} isn't in the list of words".format(text))
-    elif not in_jumble:
-        flask.flash(
-            '"{}" can\'t be made from the letters {}'.format(text, jumble))
-    else:
-        app.logger.debug("This case shouldn't happen!")
-        assert False  # Raises AssertionError
 
-    # Choose page:  Solved enough, or keep going?
+    engh = {"enough_words": len(matches) >= flask.session["target_count"]}
+
     if len(matches) >= flask.session["target_count"]:
-       return flask.redirect(flask.url_for("success"))
-    else:
-       return flask.redirect(flask.url_for("keep_going"))
+        app.logger.debug("==========ENOUGH WORDS==========(server-side)")
+    return flask.jsonify(result=rslt, enough=engh)
 
 ###############
 # AJAX request handlers
