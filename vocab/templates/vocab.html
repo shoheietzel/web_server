@@ -119,28 +119,28 @@ $("#attempt").keyup(function(event) {
 
    if (! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
 
-   $.getJSON( "/_check", { text: txt },
+   $.getJSON( "/_check", { text: txt, letter: letter},
               function(data) {
                 valid_result = data.result.valid_word
                 invalid_result = data.result.invalid_letters
                 dupli_result = data.result.duplicate_words
                 enough_result = data.enough.enough_words
 
-                if (valid_result) {
+                if (valid_result) { //valid word
                   $("#message").html("Valid Word!");
                   $("#attempt").val("");
                   $("#results").append(txt + ", ");
-                } else if (invalid_result) {
+                } else if (invalid_result) { //word in list but invalid letters
                   $("#message").html(txt + " contains invalid letters!");
                   $("#attempt").val("");
-                } else if (dupli_result) {
+                } else if (dupli_result) { //word already found
                   $("#message").html("You already found " + txt + "!");
                   $("#attempt").val("");
-                } else {
-                  $("#message").html(txt + " Is not a valid word.");
+                } else {  //invalid word/letters
+                  $("#message").html(txt + " Is not a valid word/Contains invalid letters.");
                 }
 
-                if (enough_result) {
+                if (enough_result) { //check to see if enough words found
                   $("#message").html("You Found Enough Words!");
                   console.log("we are right before changing window location")
                   window.location.assign("/success");

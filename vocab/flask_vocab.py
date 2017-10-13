@@ -87,18 +87,19 @@ def check():
     in_jumble = LetterBag(jumble).contains(text)
     matched = WORDS.has(text)
 
+    # dictionary to set booleans for various cases
     rslt = {"valid_word": matched and in_jumble and not (
         text in matches), "duplicate_words": text in matches, "invalid_letters": text in flask.g.vocab and not in_jumble}
 
+    # add matched word to list
     if matched and in_jumble and not (text in matches):
-        app.logger.debug("we here")
+        app.logger.debug("about to add match to list")
         matches.append(text)
         flask.session["matches"] = matches
 
+    # dictionary to set boolean for enough matches
     engh = {"enough_words": len(matches) >= flask.session["target_count"]}
 
-    if len(matches) >= flask.session["target_count"]:
-        app.logger.debug("==========ENOUGH WORDS==========(server-side)")
     return flask.jsonify(result=rslt, enough=engh)
 
 ###############
@@ -161,4 +162,4 @@ if __name__ == "__main__":
         app.logger.setLevel(logging.DEBUG)
         app.logger.info(
             "Opening for global access on port {}".format(CONFIG.PORT))
-        app.run(port=CONFIG.PORT, host="0.0.0.0")
+    app.run(port=CONFIG.PORT, host="0.0.0.0")
