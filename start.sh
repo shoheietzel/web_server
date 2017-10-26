@@ -1,9 +1,17 @@
 #! /bin/bash
 #
 # Usage:  ./start.sh [port]
-#  
+#
 # Start the service as a background process, saving
 # the process number (of the lead process) in SERVICE_PID.
+#
+#
+
+#! /bin/bash
+#
+# Usage:  ./start.sh [port]
+#
+# Start the service as a background process
 #
 #
 
@@ -21,16 +29,15 @@ echo "Activating ${activate}"
 source ${activate}
 echo "Activated"
 
-pushd vocab
-python3 flask_vocab.py -P ${PORTNUM} &
-pid=$! 
+pushd server
+python3 web_server.py -P ${PORTNUM} &
+pid=$!
 popd
-echo "${pid}" >SERVICE_PID
 echo "***"
 echo "Flask server started"
 echo "PID ${pid} listening on port ${PORTNUM}"
-echo "SERVICE_PID: " `cat SERVICE_PID`
 echo "***"
+
 
 #
 #

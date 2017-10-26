@@ -1,5 +1,5 @@
 #
-# Project 3:  Vocabulary game with AJAX interaction
+# [FIXME]
 #
 #
 
@@ -16,10 +16,10 @@ env:
 	python3 -m venv  env
 	($(INVENV) pip install -r requirements.txt )
 
-vocab/credentials.ini: 
-	echo "You must manually create vocab/credentials.ini"
+server/credentials.ini: 
+	echo "You must manually create server/credentials.ini"
 
-credentials: 	vocab/credentials.ini
+credentials: 	server/credentials.ini
 
 install:	env credentials
 
@@ -32,10 +32,10 @@ stop:
 ##
 ## Run test suite. 
 ## To make Python path search work as needed, we run
-## from within the 'vocab' directory. 
+## from within the 'server' directory. 
 ##
 test:	env
-	$(INVENV) cd vocab;  nosetests
+	$(INVENV) cd server;  nosetests
 
 # 'clean' and 'veryclean' are typically used before checking 
 # things into git.  'clean' should leave the project ready to 

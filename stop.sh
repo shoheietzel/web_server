@@ -1,27 +1,12 @@
 #! /bin/bash
 #
-# Stop the service started by start.sh
-# It's process ID should be in ./SERVICE_PID
+# Kill all current instances of flask_brevets on this machine
 #
-# See design notes in start.sh
-# 
-this=${BASH_SOURCE[0]}
-here=`dirname ${this}`
-pushd ${here}
-pid=`cat SERVICE_PID`
-numpat='^[0-9]+$'
-if [[ ${pid} =~  ${numpat} ]]; then
-    # That looks like a process ID ...
-    echo "PS: "
-    ps -x ${pid}
-    echo "Killing process ${pid}"
-    kill -9 ${pid}
-    sleep 1 
-    ps -x ${pid}
-else
-    echo "Didn't find expected value in ${here}/SERVICE_PID"
-    echo "Found /${pid}/"
-    echo "Didn't match /${numpat}/"
-fi;
-popd
+#
 
+# Grep for all running processes containing flask_brevets in description
+# EXCEPT the grep command itself; turn them into 'kill' commands and
+# execute the commands with bash
+#
+ps -x | grep my_web_server | grep -v grep | \
+    awk '{print "kill " $1}' | bash
