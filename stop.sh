@@ -8,5 +8,5 @@
 # EXCEPT the grep command itself; turn them into 'kill' commands and
 # execute the commands with bash
 #
-ps -x | grep my_web_server | grep -v grep | \
+ps -x | grep web_server | grep -v grep | \
     awk '{print "kill " $1}' | bash
